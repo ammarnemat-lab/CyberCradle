@@ -354,8 +354,7 @@
 
 <section id="contact">
     <div class="reveal"><div class="section-label">Get in Touch</div><h2 class="section-title">Let's build something<br>extraordinary together</h2><p class="section-sub">Got a project in mind? Whether it's a question, an idea, or you just want to explore possibilities — we'd love to hear from you.</p></div>
-    <form class="contact-form reveal" action="https://formspree.io/f/xwvngddd" method="POST">
-        <input type='hidden' name='_next' value='https://ammarnemat-lab.github.io/CyberCradle/'>
+    <form class="contact-form reveal" onsubmit="handleContactSubmit(event)">
         <div class="form-group"><label>Name</label><input type="text" name="name" required placeholder="Your name"></div>
         <div class="form-group"><label>Email</label><input type="email" name="email" required placeholder="your@email.com"></div>
         <div class="form-group"><label>Phone</label><input type="tel" name="phone" placeholder="+49 ..."></div>
@@ -364,6 +363,29 @@
         <div class="form-consent">By submitting, I agree that CyberCradle may collect my personal data to respond and send occasional updates. I can unsubscribe anytime via <a href="mailto:info@cybercradle.de">info@cybercradle.de</a>. See our <a onclick="navigateTo('privacy')" style="cursor:pointer;">Privacy Policy</a>.</div>
         <div class="form-submit"><button type="submit" class="btn-primary">Send Message <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
     </form>
+    <script>
+    async function handleContactSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        try {
+            const res = await fetch('https://formspree.io/f/xwvngddd', {
+                method: 'POST',
+                body: data,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (res.ok) {
+                form.innerHTML = '<div style="grid-column:1/-1;padding:3rem 2rem;text-align:center;color:var(--accent);font-size:1.2rem;font-weight:600;letter-spacing:0.05em;">Thanks! We will be in touch soon.</div>';
+            } else {
+                const err = document.querySelector('.form-submit');
+                err.insertAdjacentHTML('beforebegin', '<div style="grid-column:1/-1;padding:0.75rem 1rem;background:rgba(180,0,0,0.15);border:1px solid rgba(180,0,0,0.4);border-radius:10px;color:#f87171;font-size:0.9rem;text-align:center;">Something went wrong. Please try again or email us directly.</div>');
+            }
+        } catch {
+            const err = document.querySelector('.form-submit');
+            err.insertAdjacentHTML('beforebegin', '<div style="grid-column:1/-1;padding:0.75rem 1rem;background:rgba(180,0,0,0.15);border:1px solid rgba(180,0,0,0.4);border-radius:10px;color:#f87171;font-size:0.9rem;text-align:center;">Network error. Please check your connection and try again.</div>');
+        }
+    }
+    </script>
 </section>
 </div>
 
