@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberCradle | AI Development and Implementation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #1a1a2e;
+            --secondary-bg: #16213e;
+            --white: #f5f5f0;
+            --accent: #088F8F;
+            --accent-dim: #066b6b;
+            --accent-blue: #0abfbf;
+            --gray-100: #e8e8e3;
+            --gray-200: #d0d0cb;
+            --gray-400: #888883;
+            --gray-600: #555550;
+            --gray-800: #2a2a27;
+            --glass: rgba(22,33,62,0.7);
+            --glass-border: rgba(255,255,255,0.06);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--accent) var(--black);}
+        body{font-family:'Inter',sans-serif;background:var(--black);color:var(--white);overflow-x:hidden;line-height:1.6;}
+        body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+        .cursor-glow{position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(8,143,143,0.06) 0%,transparent 70%);pointer-events:none;z-index:1;transform:translate(-50%,-50%);}
+        a{color:inherit;}
+
+        /* ─── NAV ─── */
+        nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px);background:rgba(26,26,46,0.85);border-bottom:1px solid var(--glass-border);}
+        .nav-logo{font-family:'Inter',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-0.02em;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:0.5rem;cursor:pointer;}
+        .nav-logo .logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite;}
+        @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.3);}}
+        .nav-links{display:flex;align-items:center;gap:2rem;list-style:none;}
+        .nav-links a{color:var(--gray-400);text-decoration:none;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;transition:color 0.3s;position:relative;cursor:pointer;}
+        .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--accent);transition:width 0.3s ease;}
+        .nav-links a:hover{color:var(--white);}
+        .nav-links a:hover::after{width:100%;}
+        .nav-cta{padding:0.6rem 1.5rem;background:var(--accent);color:var(--black);border:none;border-radius:100px;font-family:'Inter',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:all 0.3s ease;}
+        .nav-cta:hover{background:var(--white);transform:translateY(-2px);box-shadow:0 10px 30px rgba(8,143,143,0.2);}
+
+        /* Dropdown */
+        .nav-dropdown{position:relative;}
+        .nav-dropdown-menu{position:absolute;top:calc(100% + 12px);left:-10px;background:rgba(22,33,62,0.97);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:12px;padding:0.5rem 0;min-width:240px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all 0.25s ease;z-index:100;}
+        .nav-dropdown:hover .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0);}
+        .nav-dropdown-menu a{display:block;padding:0.6rem 1.2rem;font-size:0.82rem;text-transform:none;letter-spacing:0.02em;color:var(--gray-400) !important;transition:all 0.2s;}
+        .nav-dropdown-menu a::after{display:none;}
+        .nav-dropdown-menu a:hover{color:var(--accent) !important;background:rgba(8,143,143,0.08);padding-left:1.5rem;}
+        .dropdown-arrow{font-size:0.6em;margin-left:4px;transition:transform 0.2s;}
+        .nav-dropdown:hover .dropdown-arrow{transform:rotate(180deg);}
+
+        /* Mobile */
+        .menu-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:5px;}
+        .menu-toggle span{width:24px;height:2px;background:var(--white);transition:all 0.3s ease;}
+
+        /* ─── PAGES ─── */
+        .page{display:none;} .page.active{display:block;}
+
+        /* ─── HERO ─── */
+        .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4rem;padding:8rem 3rem 4rem;position:relative;overflow:hidden;}
+        .hero-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(8,143,143,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(8,143,143,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at 30% 50%,black 20%,transparent 70%);}
+        .hero-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.4;animation:float-orb 20s ease-in-out infinite;}
+        .hero-orb-1{width:500px;height:500px;background:rgba(8,143,143,0.15);top:10%;right:5%;}
+        .hero-orb-2{width:300px;height:300px;background:rgba(0,100,200,0.1);bottom:20%;left:5%;animation-delay:-7s;}
+        @keyframes float-orb{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-20px) scale(1.05);}66%{transform:translate(-20px,15px) scale(0.95);}}
+        .hero-content{position:relative;z-index:2;}
+        /* Hero visual panel */
+        .hero-visual{position:relative;z-index:2;display:flex;flex-direction:column;gap:1.25rem;opacity:0;animation:fadeUp 0.8s ease 0.5s forwards;}
+        .hvc{background:var(--secondary-bg);border:1px solid var(--glass-border);border-radius:16px;padding:1.4rem 1.6rem;backdrop-filter:blur(10px);}
+        .hvc-header{display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;}
+        .hvc-dot{width:8px;height:8px;border-radius:50%;background:var(--gray-600);flex-shrink:0;}
+        .hvc-dot.on{background:var(--accent);box-shadow:0 0 8px rgba(8,143,143,0.5);animation:pulse-dot 1.5s ease-in-out infinite;}
+        .hvc-title{font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);}
+        .hvc-step{font-size:0.85rem;color:var(--gray-600);padding:0.4rem 0;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;gap:0.5rem;}
+        .hvc-step:last-child{border-bottom:none;}
+        .hvc-step.done{color:var(--gray-200);}
+        .hvc-step.run{color:var(--accent);}
+        .hvc-step.done::before{content:'✓';color:var(--accent);font-size:0.7rem;font-weight:700;}
+        .hvc-step.run::before{content:'▸';color:var(--accent);}
+        .hvc-step.wait::before{content:'○';color:var(--gray-600);}
+        .hvc-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+        .hvc-stat{text-align:center;padding:1.2rem 1rem;}
+        .hvc-stat-num{font-size:1.8rem;font-weight:800;color:var(--white);line-height:1;}
+        .hvc-stat-lbl{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-400);margin-top:0.3rem;}
+        .hvc-badge{display:flex;align-items:center;gap:0.6rem;font-size:0.8rem;color:var(--gray-400);padding:0.85rem 1.2rem;}
+        .hero-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;border:1px solid var(--glass-border);border-radius:100px;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;backdrop-filter:blur(10px);background:var(--glass);opacity:0;animation:fadeUp 0.8s ease forwards;}
+        .hero-badge .badge-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse-dot 1.5s ease-in-out infinite;}
+        .hero h1{font-family:'Inter',sans-serif;font-size:clamp(3rem,7vw,6rem);font-weight:800;line-height:1.05;letter-spacing:-0.03em;margin-bottom:1.5rem;opacity:0;animation:fadeUp 0.8s ease 0.15s forwards;}
+        .hero h1 .text-accent{background:linear-gradient(135deg,var(--accent),#f05a28);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .hero-sub{font-size:1.15rem;color:var(--gray-400);max-width:560px;line-height:1.7;margin-bottom:2.5rem;opacity:0;animation:fadeUp 0.8s ease 0.3s forwards;}
+        .hero-actions{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;opacity:0;animation:fadeUp 0.8s ease 0.45s forwards;}
+        .btn-primary{padding:0.9rem 2.2rem;background:var(--accent);color:var(--black);border:none;border-radius:100px;font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.03em;cursor:pointer;text-decoration:none;transition:all 0.3s ease;display:inline-flex;align-items:center;gap:0.5rem;}
+        .btn-primary:hover{background:var(--white);transform:translateY(-3px);box-shadow:0 15px 40px rgba(8,143,143,0.25);}
+        .btn-primary svg{transition:transform 0.3s;} .btn-primary:hover svg{transform:translateX(4px);}
+        .btn-ghost{padding:0.9rem 2.2rem;background:transparent;color:var(--white);border:1px solid var(--glass-border);border-radius:100px;font-family:'Inter',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;text-decoration:none;transition:all 0.3s ease;backdrop-filter:blur(5px);}
+        .btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px);}
+        .hero-stats{display:flex;gap:3rem;margin-top:4rem;padding-top:3rem;border-top:1px solid var(--glass-border);opacity:0;animation:fadeUp 0.8s ease 0.6s forwards;}
+        .stat-item .stat-number{font-family:'Inter',sans-serif;font-size:2rem;font-weight:800;color:var(--accent);}
+        .stat-item .stat-label{font-size:0.8rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.25rem;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+
+        /* ─── SECTIONS ─── */
+        section{padding:7rem 3rem;position:relative;}
+        .section-label{font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;}
+        .section-label::before{content:'';width:30px;height:1px;background:var(--accent);}
+        .section-title{font-family:'Inter',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-0.02em;line-height:1.15;margin-bottom:1.5rem;}
+        .section-sub{color:var(--gray-400);max-width:600px;font-size:1.05rem;line-height:1.7;margin-bottom:3rem;}
+        section > .reveal{max-width:1100px;margin-left:auto;margin-right:auto;}
+
+        /* ─── WHY US ─── */
+        #why-us{background:linear-gradient(180deg,var(--black) 0%,rgba(8,143,143,0.02) 50%,var(--black) 100%);}
+        .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1100px;}
+        .why-card{padding:2.5rem;border:1px solid var(--glass-border);border-radius:20px;background:var(--secondary-bg);backdrop-filter:blur(10px);transition:all 0.4s ease;position:relative;overflow:hidden;}
+        .why-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.4s;}
+        .why-card:hover{border-color:rgba(8,143,143,0.2);transform:translateY(-5px);background:rgba(85,0,0,0.05);}
+        .why-card:hover::before{opacity:1;}
+        .why-icon{width:48px;height:48px;border-radius:12px;background:rgba(8,143,143,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:var(--accent);}
+        .why-card h3{font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:0.75rem;}
+        .why-card p{color:var(--gray-400);font-size:0.95rem;line-height:1.7;}
+
+        /* ─── SERVICES GRID ─── */
+        .services-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;max-width:1100px;}
+        .service-card{padding:2.5rem;border:1px solid var(--glass-border);border-radius:20px;background:var(--secondary-bg);backdrop-filter:blur(10px);transition:all 0.4s ease;position:relative;overflow:hidden;text-decoration:none;color:inherit;display:block;cursor:pointer;}
+        .service-card:hover{border-color:rgba(8,143,143,0.3);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.4);}
+        .service-num{font-family:'Inter',sans-serif;font-size:4rem;font-weight:800;color:rgba(8,143,143,0.1);line-height:1;margin-bottom:1rem;}
+        .service-card h3{font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:0.75rem;}
+        .service-card p{color:var(--gray-400);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;}
+        .service-link{display:inline-flex;align-items:center;gap:0.5rem;color:var(--accent);font-size:0.85rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;transition:gap 0.3s;}
+        .service-card:hover .service-link{gap:0.8rem;}
+        .arrow-svg{width:14px;height:14px;}
+
+        /* ─── SHOWCASE ─── */
+        #showcase{background:linear-gradient(180deg,var(--black) 0%,rgba(8,143,143,0.02) 50%,var(--black) 100%);}
+        .showcase-container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;}
+        .showcase-visual{position:relative;height:400px;border-radius:24px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+        .showcase-visual::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(8,143,143,0.1);filter:blur(60px);animation:float-orb 15s ease-in-out infinite;}
+        .wazeer-logo-text{font-family:'Inter',sans-serif;font-size:3rem;font-weight:800;background:linear-gradient(135deg,var(--accent),#f05a28);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;z-index:2;}
+        .showcase-info h3{font-family:'Inter',sans-serif;font-size:2rem;font-weight:700;margin-bottom:1rem;}
+        .showcase-info p{color:var(--gray-400);line-height:1.7;margin-bottom:1.5rem;}
+        .showcase-features{list-style:none;margin-bottom:2rem;}
+        .showcase-features li{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:1rem;color:var(--gray-200);font-size:0.95rem;line-height:1.6;}
+        .showcase-features li svg{color:var(--accent);flex-shrink:0;margin-top:3px;}
+
+        /* ─── CONTACT ─── */
+        #contact{max-width:800px;margin:0 auto;text-align:center;}
+        #contact .section-label{justify-content:center;}
+        #contact .section-sub{margin-left:auto;margin-right:auto;}
+        .contact-form{display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:left;margin-top:2rem;}
+        .form-group{display:flex;flex-direction:column;gap:0.4rem;}
+        .form-group.full-width{grid-column:1 / -1;}
+        .form-group label{font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);}
+        .form-group input,.form-group textarea{padding:0.9rem 1.2rem;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;color:var(--white);font-family:'Inter',sans-serif;font-size:0.95rem;transition:all 0.3s;outline:none;}
+        .form-group input:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(8,143,143,0.12);}
+        .form-group textarea{min-height:140px;resize:vertical;}
+        .form-submit{grid-column:1 / -1;display:flex;justify-content:center;margin-top:1rem;}
+        .form-consent{grid-column:1 / -1;font-size:0.75rem;color:var(--gray-600);line-height:1.6;text-align:center;}
+        .form-consent a{color:var(--accent);text-decoration:none;} .form-consent a:hover{text-decoration:underline;}
+
+        /* ─── MARQUEE ─── */
+        .marquee-section{padding:2rem 0;border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);overflow:hidden;}
+        .marquee-track{display:flex;gap:3rem;animation:marquee 30s linear infinite;width:max-content;}
+        .marquee-item{font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:600;color:var(--gray-600);white-space:nowrap;display:flex;align-items:center;gap:1.5rem;}
+        .marquee-item .dot{width:5px;height:5px;background:var(--accent);border-radius:50%;}
+        @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+        /* ─── SUB-PAGE HERO ─── */
+        .sub-hero{padding:10rem 3rem 4rem;position:relative;overflow:hidden;border-bottom:1px solid var(--glass-border);}
+        .sub-hero .hero-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(8,143,143,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(8,143,143,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at 30% 50%,black 20%,transparent 70%);}
+        .sub-hero-content{max-width:800px;position:relative;z-index:2;}
+        .sub-hero h1{font-family:'Inter',sans-serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;margin-bottom:1rem;}
+        .sub-hero p{font-size:1.1rem;color:var(--gray-400);line-height:1.7;max-width:650px;}
+        .breadcrumb{display:flex;gap:0.5rem;margin-bottom:1.5rem;font-size:0.8rem;letter-spacing:0.05em;text-transform:uppercase;}
+        .breadcrumb a{color:var(--accent);text-decoration:none;cursor:pointer;} .breadcrumb a:hover{text-decoration:underline;}
+        .breadcrumb span{color:var(--gray-600);}
+
+        /* ─── PROCESS STEPS ─── */
+        .process-section{max-width:900px;margin:0 auto;padding:5rem 3rem;}
+        .process-step{display:grid;grid-template-columns:80px 1fr;gap:2rem;margin-bottom:3rem;position:relative;}
+        .process-step::before{content:'';position:absolute;left:39px;top:60px;bottom:-30px;width:1px;background:var(--glass-border);}
+        .process-step:last-child::before{display:none;}
+        .step-num{width:80px;height:80px;border-radius:20px;background:rgba(8,143,143,0.08);border:1px solid rgba(8,143,143,0.2);display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent);}
+        .step-content h3{font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:0.5rem;margin-top:0.5rem;}
+        .step-content p{color:var(--gray-400);line-height:1.7;font-size:0.95rem;}
+
+        /* ─── CTA BAND ─── */
+        .cta-band{padding:5rem 3rem;text-align:center;background:linear-gradient(180deg,rgba(8,143,143,0.04) 0%,var(--black) 100%);border-top:1px solid var(--glass-border);}
+        .cta-band h2{font-family:'Inter',sans-serif;font-size:clamp(1.8rem,3vw,2.5rem);font-weight:800;margin-bottom:1rem;}
+        .cta-band p{color:var(--gray-400);margin-bottom:2rem;max-width:500px;margin-left:auto;margin-right:auto;}
+
+        /* ─── LEGAL PAGES ─── */
+        .legal-content{max-width:800px;margin:0 auto;padding:2rem 3rem 5rem;}
+        .legal-content h2{font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:700;margin-top:2.5rem;margin-bottom:0.75rem;}
+        .legal-content h3{font-family:'Inter',sans-serif;font-size:1.15rem;font-weight:600;margin-top:2rem;margin-bottom:0.5rem;}
+        .legal-content p{color:var(--gray-200);line-height:1.8;margin-bottom:1rem;}
+        .legal-content ul{color:var(--gray-200);margin-bottom:1rem;padding-left:1.5rem;} .legal-content li{margin-bottom:0.4rem;line-height:1.7;}
+        .legal-content a{color:var(--accent);text-decoration:none;} .legal-content a:hover{text-decoration:underline;}
+
+        /* ─── ABOUT ─── */
+        .about-story{max-width:800px;margin:0 auto;padding:4rem 3rem;}
+        .about-story p{color:var(--gray-200);line-height:1.8;margin-bottom:1.5rem;font-size:1.05rem;}
+        .about-story blockquote{border-left:3px solid var(--accent);padding:1rem 1.5rem;margin:2rem 0;font-style:italic;color:var(--gray-200);font-size:1.1rem;}
+        .founders-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;max-width:800px;margin:0 auto;padding:0 3rem 4rem;}
+        .founder-card{border:1px solid var(--glass-border);border-radius:20px;padding:2.5rem;background:var(--secondary-bg);text-align:center;transition:all 0.3s;}
+        .founder-card:hover{border-color:rgba(8,143,143,0.25);transform:translateY(-4px);}
+        .founder-avatar{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,rgba(8,143,143,0.15),rgba(240,90,40,0.15));display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-family:'Inter',sans-serif;font-size:2rem;font-weight:800;color:var(--accent);}
+        .founder-card h3{font-family:'Inter',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:0.25rem;}
+        .founder-card .founder-role{color:var(--gray-400);font-size:0.85rem;margin-bottom:0.75rem;}
+        .founder-card a{color:var(--accent);text-decoration:none;font-size:0.85rem;} .founder-card a:hover{text-decoration:underline;}
+
+        /* ─── FOOTER ─── */
+        footer{padding:4rem 3rem 2rem;border-top:1px solid var(--glass-border);}
+        .footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;}
+        .footer-brand .nav-logo{margin-bottom:1rem;}
+        .footer-brand p{color:var(--gray-400);font-size:0.9rem;line-height:1.6;max-width:300px;}
+        .footer-col h4{font-family:'Inter',sans-serif;font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);margin-bottom:1rem;}
+        .footer-col a{display:block;color:var(--gray-200);text-decoration:none;font-size:0.9rem;margin-bottom:0.6rem;transition:color 0.3s;cursor:pointer;}
+        .footer-col a:hover{color:var(--accent);}
+        .footer-bottom{max-width:1100px;margin:3rem auto 0;padding-top:2rem;border-top:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;color:var(--gray-600);}
+        .footer-legal a{color:var(--gray-600);text-decoration:none;margin-left:1.5rem;transition:color 0.3s;cursor:pointer;} .footer-legal a:hover{color:var(--accent);}
+
+        /* ─── SCROLL ANIMATIONS ─── */
+        .reveal{opacity:0;transform:translateY(40px);transition:all 0.8s cubic-bezier(0.16,1,0.3,1);}
+        .reveal.visible{opacity:1;transform:translateY(0);}
+
+        /* ─── RESPONSIVE ─── */
+        @media(max-width:900px){
+            nav{padding:1rem 1.5rem;}
+            .nav-links{display:none;} .menu-toggle{display:flex;}
+            .nav-links.active{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:rgba(22,33,62,0.97);backdrop-filter:blur(20px);padding:2rem;gap:1.5rem;border-bottom:1px solid var(--glass-border);}
+            .nav-links.active .nav-dropdown-menu{position:static;opacity:1;visibility:visible;transform:none;background:transparent;border:none;padding:0.5rem 0 0 1rem;min-width:auto;}
+            .hero{grid-template-columns:1fr;padding:7rem 1.5rem 3rem;} .hero-stats{flex-direction:column;gap:1.5rem;} .hero-visual{display:none;}
+            section{padding:4rem 1.5rem;}
+            .why-grid,.services-grid{grid-template-columns:1fr;}
+            .showcase-container{grid-template-columns:1fr;} .showcase-visual{height:250px;}
+            .contact-form{grid-template-columns:1fr;}
+            .footer-inner{grid-template-columns:1fr 1fr;gap:2rem;}
+            .footer-bottom{flex-direction:column;gap:1rem;text-align:center;}
+            .sub-hero{padding:7rem 1.5rem 3rem;}
+            .process-section,.about-story,.legal-content{padding-left:1.5rem;padding-right:1.5rem;}
+            .process-step{grid-template-columns:60px 1fr;gap:1rem;}
+            .step-num{width:60px;height:60px;font-size:1.2rem;}
+            .founders-grid{grid-template-columns:1fr;padding:0 1.5rem 3rem;}
+        }
+    </style>
+</head>
+<body>
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- ─── NAV ─── -->
+<nav>
+    <a class="nav-logo" onclick="navigateTo('home')"><span class="logo-dot"></span>CyberCradle</a>
+    <ul class="nav-links" id="navLinks">
+        <li class="nav-dropdown">
+            <a>Services <span class="dropdown-arrow">▼</span></a>
+            <div class="nav-dropdown-menu">
+                <a onclick="navigateTo('ai-agents')">AI Agents</a>
+                <a onclick="navigateTo('rag-development')">RAG Development</a>
+                <a onclick="navigateTo('fine-tuning')">Fine-Tuning</a>
+                <a onclick="navigateTo('gen-ai-diagnostic')">Gen AI Diagnostic</a>
+                <a onclick="navigateTo('ai-strategy')">AI Strategy Consulting</a>
+                <a onclick="navigateTo('ai-training')">AI Training & Workshops</a>
+                <a onclick="navigateTo('ai-integration')">AI Integration & APIs</a>
+            </div>
+        </li>
+        <li><a onclick="navigateTo('about-us')">About Us</a></li>
+        <li><a onclick="navigateTo('home','#contact')">Contact</a></li>
+    </ul>
+    <a onclick="navigateTo('home','#contact')" class="nav-cta">Let's Talk</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- PAGE: HOME -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+<section class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-content">
+        <div class="hero-badge"><span class="badge-dot"></span>AI Development & Implementation</div>
+        <h1>Building<br><span class="text-accent">Digital & AI</span><br>Excellence</h1>
+        <p class="hero-sub">We transform your digital ecosystem with custom AI and automation solutions. From enterprise-grade infrastructure to intelligent agents, we create technology that learns, adapts, and scales.</p>
+        <div class="hero-actions">
+            <a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get Started <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+            <a onclick="scrollToEl('#services-home')" class="btn-ghost" style="cursor:pointer;">Explore Services</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-item"><div class="stat-number">AI-First</div><div class="stat-label">Development Approach</div></div>
+            <div class="stat-item"><div class="stat-number">End-to-End</div><div class="stat-label">From Strategy to Deployment</div></div>
+            <div class="stat-item"><div class="stat-number">Berlin</div><div class="stat-label">Based, Globally Available</div></div>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hvc">
+            <div class="hvc-header"><span class="hvc-dot on"></span><span class="hvc-title">AI Agent — Active</span></div>
+            <div class="hvc-step done">Audit existing workflows &amp; data</div>
+            <div class="hvc-step done">Design agent architecture</div>
+            <div class="hvc-step run">Deploying to production...</div>
+            <div class="hvc-step wait">Monitor &amp; iterate</div>
+        </div>
+        <div class="hvc-row">
+            <div class="hvc"><div class="hvc-stat"><div class="hvc-stat-num">7+</div><div class="hvc-stat-lbl">AI Services</div></div></div>
+            <div class="hvc"><div class="hvc-stat"><div class="hvc-stat-num">100%</div><div class="hvc-stat-lbl">Custom Built</div></div></div>
+        </div>
+        <div class="hvc hvc-badge"><span class="hvc-dot on"></span>Berlin-based · Globally Available</div>
+    </div>
+</section>
+
+<div class="marquee-section"><div class="marquee-track">
+    <span class="marquee-item">AI Agents <span class="dot"></span></span><span class="marquee-item">RAG Development <span class="dot"></span></span><span class="marquee-item">Fine-Tuning <span class="dot"></span></span><span class="marquee-item">Gen AI Diagnostics <span class="dot"></span></span><span class="marquee-item">AI Strategy <span class="dot"></span></span><span class="marquee-item">Workshops & Training <span class="dot"></span></span><span class="marquee-item">Enterprise Integration <span class="dot"></span></span><span class="marquee-item">Prompt Engineering <span class="dot"></span></span>
+    <span class="marquee-item">AI Agents <span class="dot"></span></span><span class="marquee-item">RAG Development <span class="dot"></span></span><span class="marquee-item">Fine-Tuning <span class="dot"></span></span><span class="marquee-item">Gen AI Diagnostics <span class="dot"></span></span><span class="marquee-item">AI Strategy <span class="dot"></span></span><span class="marquee-item">Workshops & Training <span class="dot"></span></span><span class="marquee-item">Enterprise Integration <span class="dot"></span></span><span class="marquee-item">Prompt Engineering <span class="dot"></span></span>
+</div></div>
+
+<section id="why-us">
+    <div class="reveal"><div class="section-label">Why CyberCradle</div><h2 class="section-title">We don't just talk AI.<br>We build it.</h2><p class="section-sub">We've built our own products from the ground up. We've faced the same technical and strategic challenges you will.</p></div>
+    <div class="why-grid">
+        <div class="why-card reveal"><div class="why-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><h3>We Walk the Talk</h3><p>We've built our own AI chatbot JIBRIL from scratch. We've faced the same challenges you will, which means we know what truly works. Not just theory — practice.</p></div>
+        <div class="why-card reveal"><div class="why-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h3>We're On the Clock</h3><p>While large corporations spend months in bureaucracy, we deliver with agility. Clear roadmaps, no unnecessary steps, sharp timelines.</p></div>
+        <div class="why-card reveal"><div class="why-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><h3>Lean & Transparent</h3><p>No bloated budgets. Our pricing stays lean and transparent — high-quality work at a fraction of market cost. Every dollar counts.</p></div>
+    </div>
+</section>
+
+<section id="services-home" style="max-width:1100px;margin:0 auto;">
+    <div class="reveal"><div class="section-label">What We Do</div><h2 class="section-title">Services built for the AI era</h2><p class="section-sub">From intelligent agents to stress-tested diagnostics, we deliver end-to-end AI solutions.</p></div>
+    <div class="services-grid">
+        <div class="service-card reveal" onclick="navigateTo('ai-agents')"><div class="service-num">01</div><h3>AI Agents</h3><p>We build AI bots and digital agents that automate tasks, make decisions, and scale your business. Designed for reliability, our agents integrate seamlessly with your workflows.</p><span class="service-link">Learn More <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div>
+        <div class="service-card reveal" onclick="navigateTo('fine-tuning')"><div class="service-num">02</div><h3>Fine-Tuning</h3><p>Transform generic AI into your personal expert. We fine-tune large models on your domain data to create tailored intelligence for your brand, product, or team.</p><span class="service-link">Learn More <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div>
+        <div class="service-card reveal" onclick="navigateTo('rag-development')"><div class="service-num">03</div><h3>RAG Development</h3><p>We build AI that knows what it's talking about. Our RAG pipelines connect large language models to your real data — answers grounded in truth, not guesses.</p><span class="service-link">Learn More <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div>
+        <div class="service-card reveal" onclick="navigateTo('gen-ai-diagnostic')"><div class="service-num">04</div><h3>Gen AI Diagnostic Review</h3><p>We don't just test your Gen AI — we aggressively challenge it. Stress-testing against prompt injection, hallucination, and system failures to fortify your product.</p><span class="service-link">Learn More <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div>
+        <div class="service-card reveal" onclick="navigateTo('ai-strategy')"><div class="service-num">05</div><h3>AI Strategy Consulting</h3><p>Not sure where to start with AI? We assess your business, identify high-impact opportunities, and deliver a clear roadmap to AI-driven transformation.</p><span class="service-link">Learn More <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div>
+        <div class="service-card reveal" onclick="navigateTo('ai-training')"><div class="service-num">06</div><h3>AI Training & Workshops</h3><p>Upskill your team with hands-on AI literacy programs. From executive briefings to developer boot camps, we make AI accessible to every level of your organization.</p><span class="service-link">Learn More <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div>
+        <div class="service-card reveal" onclick="navigateTo('ai-integration')" style="grid-column:1/-1;max-width:600px;"><div class="service-num">07</div><h3>AI Integration & APIs</h3><p>We connect AI models to your existing tech stack — CRMs, ERPs, databases, and SaaS platforms — through robust API pipelines and middleware solutions.</p><span class="service-link">Learn More <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div>
+    </div>
+</section>
+
+<section id="showcase">
+    <div class="showcase-container">
+        <div class="showcase-visual reveal"><img src="https://raw.githubusercontent.com/ammarnemat-lab/CyberCradle/main/wazeer-logo.png" alt="WAZEER" style="max-width:280px;width:100%;border-radius:16px;position:relative;z-index:2;"></div>
+        <div class="showcase-info reveal">
+            <div class="section-label">Our Work</div><h3>WAZEER — AI-Powered Islamic Guidance</h3><p>Our flagship app, built from the ground up. WAZEER brings AI technology to Islamic guidance with two core features:</p>
+            <ul class="showcase-features">
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><strong>JIBRIL</strong> — An AI chatbot that serves as your Islamic companion. Share your real-life scenarios and receive thoughtful, authentic guidance.</span></li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Deenscrolling</strong> — A discovery feed designed to inspire reflection and learning. Every scroll delivers meaningful knowledge from authentic Islamic sources.</span></li>
+            </ul>
+            <a href="http://www.wazeer.app" class="btn-primary" target="_blank">Explore WAZEER <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        </div>
+    </div>
+</section>
+
+<section id="contact">
+    <div class="reveal"><div class="section-label">Get in Touch</div><h2 class="section-title">Let's build something<br>extraordinary together</h2><p class="section-sub">Got a project in mind? Whether it's a question, an idea, or you just want to explore possibilities — we'd love to hear from you.</p></div>
+    <form class="contact-form reveal" action="https://formspree.io/f/xwvngddd" method="POST">
+        <input type='hidden' name='_next' value='https://ammarnemat-lab.github.io/CyberCradle/'>
+        <div class="form-group"><label>Name</label><input type="text" name="name" required placeholder="Your name"></div>
+        <div class="form-group"><label>Email</label><input type="email" name="email" required placeholder="your@email.com"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" name="phone" placeholder="+49 ..."></div>
+        <div class="form-group"><label>Company</label><input type="text" name="company" placeholder="Your company"></div>
+        <div class="form-group full-width"><label>Message</label><textarea name="message" required placeholder="Tell us about your project..."></textarea></div>
+        <div class="form-consent">By submitting, I agree that CyberCradle may collect my personal data to respond and send occasional updates. I can unsubscribe anytime via <a href="mailto:info@cybercradle.de">info@cybercradle.de</a>. See our <a onclick="navigateTo('privacy')" style="cursor:pointer;">Privacy Policy</a>.</div>
+        <div class="form-submit"><button type="submit" class="btn-primary">Send Message <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
+    </form>
+</section>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- SERVICE PAGES (template function builds them) -->
+<!-- ════════════════════════════════════════════════ -->
+
+<!-- AI AGENTS -->
+<div id="page-ai-agents" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>AI Agents</span></div><h1>AI Agents</h1><p>Autonomous software systems that use artificial intelligence to achieve goals and complete tasks on behalf of users with minimal or no human intervention. They perceive their environment, make decisions, and take actions using reasoning, planning, and memory.</p></div></div>
+    <div class="process-section">
+        <div class="process-step reveal"><div class="step-num">01</div><div class="step-content"><h3>Diagnose</h3><p>We audit your company's existing workflows to understand inefficiencies, data flows, and automation opportunities. Our goal is to uncover where intelligent automation can make the greatest business impact.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">02</div><div class="step-content"><h3>Prescribe</h3><p>We identify key "AI hotspots" within your processes and present clear ROI projections and technical feasibility. You receive a tailored AI roadmap detailing tools, models, and integration pathways.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">03</div><div class="step-content"><h3>Implement</h3><p>We build, train, and integrate the AI solution directly into your operations, seamlessly enhancing productivity. Each deployment is tested for accuracy, reliability, and alignment with your business goals.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">04</div><div class="step-content"><h3>Maintain</h3><p>We provide continuous support, updates, and performance monitoring, turning a one-time project into recurring growth. Our team ensures your AI agents evolve with new data, use cases, and technological advancements.</p></div></div>
+    </div>
+    <div class="cta-band"><h2>Ready to automate with intelligent agents?</h2><p>Let's discuss how AI agents can transform your operations.</p><a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get in Touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</div>
+
+<!-- RAG DEVELOPMENT -->
+<div id="page-rag-development" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>RAG Development</span></div><h1>R.A.G. Development</h1><p>Retrieval-Augmented Generation improves large language models by combining them with external, up-to-date data sources. Instead of relying only on static training data, RAG models retrieve relevant information from a knowledge base to generate more accurate, contextual responses.</p></div></div>
+    <div class="process-section">
+        <div class="process-step reveal"><div class="step-num">01</div><div class="step-content"><h3>Indexing Stage</h3><p>We prepare your external knowledge base for efficient retrieval — collecting data from documents, databases, or APIs; cleaning and chunking text into meaningful segments; and generating vector embeddings that capture semantic meaning.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">02</div><div class="step-content"><h3>Retrieval Stage</h3><p>When a user query is received, we preprocess and convert it into an embedding. The system performs similarity searches across the vector database to find the most relevant chunks using hybrid or re-ranking methods.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">03</div><div class="step-content"><h3>Fusion Stage</h3><p>The retrieved data snippets are intelligently merged with the user's original query to create a rich, context-aware prompt. This augmented input is then passed to the LLM, enabling it to generate more precise and factually consistent responses.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">04</div><div class="step-content"><h3>Generation Stage</h3><p>We validate and refine model outputs to ensure they remain accurate and traceable to your source data. This includes optional response verification, output ranking, and feedback-based fine-tuning for continuous improvement.</p></div></div>
+    </div>
+    <div class="cta-band"><h2>Build AI that knows your data</h2><p>Let's connect your knowledge base to the power of LLMs.</p><a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get in Touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</div>
+
+<!-- FINE-TUNING -->
+<div id="page-fine-tuning" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>Fine-Tuning</span></div><h1>Fine-Tuning</h1><p>Fine-tuning takes a pre-trained, general-purpose model and further trains it on a smaller, task-specific dataset to adapt it for a specialized purpose. It leverages the model's existing knowledge and adjusts parameters to improve performance for your unique needs.</p></div></div>
+    <div class="process-section">
+        <div class="process-step reveal"><div class="step-num">01</div><div class="step-content"><h3>Problem Definition & Model Selection</h3><p>We start by defining the exact task and performance objectives for your AI solution. Once the scope and success metrics are clear, we identify and select the most suitable pre-trained model for your purpose.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">02</div><div class="step-content"><h3>Data Preparation & Structuring</h3><p>We collect, clean, and preprocess a high-quality dataset tailored to your use case. This includes annotation, normalization, and splitting into training, validation, and testing sets for balanced, reliable development.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">03</div><div class="step-content"><h3>Configuration & Fine-Tuning</h3><p>We adjust the model architecture for your task, integrating methods like LoRA or PEFT to optimize performance. Our team carefully tunes hyperparameters like learning rate, batch size, and epochs for optimal results.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">04</div><div class="step-content"><h3>Validation & Deployment</h3><p>We rigorously test the fine-tuned model using relevant performance metrics before deployment. Once integrated into your environment, performance is continuously monitored to ensure reliability.</p></div></div>
+    </div>
+    <div class="cta-band"><h2>Turn generic AI into your expert</h2><p>Let's build a model that speaks your language.</p><a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get in Touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</div>
+
+<!-- GEN AI DIAGNOSTIC -->
+<div id="page-gen-ai-diagnostic" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>Gen AI Diagnostic</span></div><h1>Generative AI Diagnostic Review</h1><p>We evaluate your deployed AI system to understand how well it performs in real-world use. We test with diverse queries, identify hallucinations, check RAG pipeline completeness, and assess prompt handling, safety, and alignment.</p></div></div>
+    <div class="process-section">
+        <div class="process-step reveal"><div class="step-num">01</div><div class="step-content"><h3>Problem Identification</h3><p>We begin by identifying the exact goals and expected behaviors of your deployed AI system. We outline test scenarios, failure modes, and performance indicators needed for a thorough diagnostic review.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">02</div><div class="step-content"><h3>Data Structure & Evaluation</h3><p>We examine how your AI uses internal and external knowledge sources, reviewing RAG pipelines, document coverage, and data structuring. This includes checking embeddings, chunking strategies, retrieval accuracy, and content freshness.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">03</div><div class="step-content"><h3>Behavioral Testing & Stress Analysis</h3><p>We stress-test your application under real and adversarial conditions, evaluating prompt handling, hallucination rates, and reasoning quality. We test for missing retrievals, broken chains of thought, and prompt injection vulnerabilities.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">04</div><div class="step-content"><h3>Validation & Improvement</h3><p>We validate performance using targeted benchmarks and scenario-based testing. Once results are analyzed, we deliver a structured improvement plan detailing fixes for RAG gaps, tuning needs, and safety hardening.</p></div></div>
+    </div>
+    <div class="cta-band"><h2>Fortify your AI product</h2><p>Let's stress-test your system and make it bulletproof.</p><a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get in Touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</div>
+
+<!-- ─── NEW SERVICE: AI STRATEGY CONSULTING ─── -->
+<div id="page-ai-strategy" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>AI Strategy Consulting</span></div><h1>AI Strategy Consulting</h1><p>Not every business needs AI — but every business needs to understand it. We help you identify where AI creates real value, build a prioritized roadmap, and avoid the costly trap of adopting technology for its own sake.</p></div></div>
+    <div class="process-section">
+        <div class="process-step reveal"><div class="step-num">01</div><div class="step-content"><h3>Discovery & Assessment</h3><p>We conduct a deep-dive into your business operations, tech stack, and data landscape. Through stakeholder interviews and workflow mapping, we identify the highest-impact areas where AI can drive measurable outcomes.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">02</div><div class="step-content"><h3>Opportunity Mapping</h3><p>We score and prioritize AI opportunities based on feasibility, expected ROI, and strategic alignment. Each opportunity is mapped against your team's readiness, data availability, and competitive landscape.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">03</div><div class="step-content"><h3>Roadmap & Architecture</h3><p>We deliver a phased AI adoption roadmap with clear milestones, budget estimates, and technology recommendations. This includes model selection, infrastructure planning, and vendor evaluation — everything you need to move forward with confidence.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">04</div><div class="step-content"><h3>Governance & Change Management</h3><p>AI isn't just a tech decision — it's an organizational one. We help you define AI governance policies, data ethics frameworks, and change management strategies to ensure adoption sticks across teams.</p></div></div>
+    </div>
+    <div class="cta-band"><h2>Build your AI roadmap with clarity</h2><p>Let's turn ambiguity into an actionable AI strategy.</p><a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get in Touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</div>
+
+<!-- ─── NEW SERVICE: AI TRAINING & WORKSHOPS ─── -->
+<div id="page-ai-training" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>AI Training & Workshops</span></div><h1>AI Training & Workshops</h1><p>The most powerful AI tools are worthless if your team can't use them effectively. We deliver hands-on training programs that transform your workforce from AI-curious to AI-confident — from C-suite to developers.</p></div></div>
+    <div class="process-section">
+        <div class="process-step reveal"><div class="step-num">01</div><div class="step-content"><h3>Needs Assessment</h3><p>We evaluate your team's current AI literacy, identify skill gaps, and align training objectives with your business goals. Whether you need executive-level briefings or deep technical immersion, we tailor the program to your people.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">02</div><div class="step-content"><h3>Curriculum Design</h3><p>We build a custom training curriculum covering the topics most relevant to your industry — prompt engineering, AI tool adoption (Microsoft Copilot, ChatGPT, Claude), automation workflows, and responsible AI practices.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">03</div><div class="step-content"><h3>Interactive Delivery</h3><p>Our workshops are hands-on, not lectures. Participants work with real tools, real prompts, and real use cases from their own workflows. We offer both in-person (Berlin and DACH region) and remote formats with live facilitation.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">04</div><div class="step-content"><h3>Adoption Support</h3><p>Training doesn't end at the workshop. We provide follow-up coaching, ambassador program design, and internal resource kits to sustain momentum. We measure adoption KPIs and adjust the program to maximize impact.</p></div></div>
+    </div>
+    <div class="cta-band"><h2>Upskill your team in AI</h2><p>From AI-curious to AI-confident — we'll get your people there.</p><a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get in Touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</div>
+
+<!-- ─── NEW SERVICE: AI INTEGRATION & APIs ─── -->
+<div id="page-ai-integration" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>AI Integration & APIs</span></div><h1>AI Integration & APIs</h1><p>AI models are only valuable when they're wired into your business. We connect LLMs, computer vision models, and automation pipelines directly to your existing tools — CRMs, ERPs, databases, SaaS platforms — through robust, scalable API solutions.</p></div></div>
+    <div class="process-section">
+        <div class="process-step reveal"><div class="step-num">01</div><div class="step-content"><h3>System Audit & Architecture</h3><p>We map your current tech ecosystem — from databases and CRMs to internal tools and third-party SaaS. We identify integration points, data flow dependencies, and potential bottlenecks before writing a single line of code.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">02</div><div class="step-content"><h3>API Design & Development</h3><p>We build clean, documented REST or GraphQL APIs that connect your AI models to the tools your team already uses. Whether it's feeding customer data into an LLM or triggering automated workflows from model outputs, we design for reliability and scale.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">03</div><div class="step-content"><h3>Middleware & Orchestration</h3><p>Complex integrations need intelligent orchestration. We build middleware layers that handle authentication, rate limiting, data transformation, error handling, and retry logic — so your AI pipelines run smoothly in production.</p></div></div>
+        <div class="process-step reveal"><div class="step-num">04</div><div class="step-content"><h3>Testing & Production Deployment</h3><p>Every integration is stress-tested with real data before going live. We implement monitoring dashboards, alerting, and fallback mechanisms to ensure your AI-powered workflows operate reliably at scale, 24/7.</p></div></div>
+    </div>
+    <div class="cta-band"><h2>Wire AI into your business</h2><p>Let's connect your models to the tools that matter.</p><a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get in Touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- ABOUT US -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-about-us" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>About Us</span></div><h1>About Us</h1><p>Incubating Dreams, Digitally.</p></div></div>
+    <div class="about-story">
+        <div class="section-label">Our Story</div>
+        <p>There's a saying that if you wish to get something done, you've got to do it yourself. We were both actively involved in artificial intelligence long before it became mainstream. It was our mission to utilize the full potential of AI to develop solutions for everyday problems.</p>
+        <p>Come 2025, the stable version of ChatGPT was released, and we realized the gateways to our envisioned world were finally open. We started exploring the nuts and bolts of AI to devise a solution for one of our problems. The interesting twist happened when we told friends and family — they loved the idea and said it would be useful for them on a daily basis.</p>
+        <p>We gathered the data, further trained and fine-tuned it, and branded it as our very first AI product — the world's first AI Islamic assistant, named <a href="http://www.jibril.app" target="_blank">JIBRIL</a>.</p>
+        <p>What started as a dream turned into a full-fledged AI business. We're more than excited to create a better world through technology, but always remember — it all started with a dream.</p>
+        <blockquote>"The secret of getting ahead, is getting started." — Mark Twain</blockquote>
+    </div>
+    <div style="text-align:center;padding:0 3rem 2rem;"><div class="section-label" style="justify-content:center;">Meet The Founders</div></div>
+    <div class="founders-grid">
+        <div class="founder-card reveal">
+            <div class="founder-avatar">AN</div>
+            <h3>Ammar Nemat</h3>
+            <div class="founder-role">Co-founder</div>
+            <a href="mailto:ammar@cybercradle.de">ammar@cybercradle.de</a><br>
+            <a href="https://www.linkedin.com/in/ammarnemat898/" target="_blank" style="font-size:0.8rem;margin-top:0.3rem;display:inline-block;">LinkedIn →</a>
+        </div>
+        <div class="founder-card reveal">
+            <div class="founder-avatar">AJ</div>
+            <h3>Abdul Jalil Khan Rao</h3>
+            <div class="founder-role">Co-founder</div>
+            <a href="mailto:abdul@cybercradle.de">abdul@cybercradle.de</a><br>
+            <a href="https://www.linkedin.com/in/abdul-jalil-khan-rao/" target="_blank" style="font-size:0.8rem;margin-top:0.3rem;display:inline-block;">LinkedIn →</a>
+        </div>
+    </div>
+    <div class="cta-band"><h2>Let's build something together</h2><p>We'd love to hear about your project.</p><a onclick="navigateTo('home','#contact')" class="btn-primary" style="cursor:pointer;">Get in Touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- IMPRINT -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-imprint" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>Imprint</span></div><h1>Imprint</h1></div></div>
+    <div class="legal-content">
+        <h2>Angaben gemäß § 5 TMG</h2>
+        <p>CyberCradle<br>Ammar Nemat – Einzelunternehmen<br>(bekannt unter der Geschäftsbezeichnung „CyberCradle")<br>Goltzstraße 63<br>13587 Berlin<br>Deutschland</p>
+        <h2>Kontakt</h2>
+        <p>Telefon: +49 15213088379<br>E-Mail: <a href="mailto:info@cybercradle.de">info@cybercradle.de</a><br>Website: <a href="https://www.cybercradle.de">www.cybercradle.de</a></p>
+        <h2>Umsatzsteuer-ID</h2>
+        <p>Umsatzsteuer-Identifikationsnummer gemäß §27 a Umsatzsteuergesetz:<br>Nicht vorhanden (Kleinunternehmer gemäß § 19 UStG)</p>
+        <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
+        <p>Ammar Nemat<br>Goltzstraße 63<br>13587 Berlin</p>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- PRIVACY POLICY -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-privacy" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>Privacy Policy</span></div><h1>Privacy Policy</h1></div></div>
+    <div class="legal-content">
+        <h2>1. Responsible Entity</h2>
+        <p>CyberCradle — Ammar Nemat – Sole Proprietorship<br>Goltzstraße 63, 13587 Berlin, Germany<br>Email: <a href="mailto:info@cybercradle.de">info@cybercradle.de</a> · Website: <a href="https://www.cybercradle.de">www.cybercradle.de</a></p>
+        <h2>2. General Information</h2>
+        <p>We take the protection of your personal data seriously. We treat your personal data confidentially and in accordance with applicable data protection laws, including the EU General Data Protection Regulation (GDPR). This privacy policy informs you about the type, scope, and purpose of personal data processing when you use our website or communicate with us.</p>
+        <h2>3. Purposes of Data Processing</h2>
+        <p>We process personal data only when necessary:</p>
+        <ul><li>To respond to inquiries (Art. 6(1)(b) GDPR)</li><li>To fulfill pre-contractual or contractual obligations</li><li>For legitimate business communication (Art. 6(1)(f) GDPR)</li><li>To improve our services and maintain website functionality</li></ul>
+        <h2>4. Contact by Email</h2>
+        <p>If you contact us via email, your data (email address, name, message content) will be processed to respond to your inquiry. This is based on our legitimate interest in communication (Art. 6(1)(f) GDPR) or to carry out pre-contractual steps (Art. 6(1)(b) GDPR).</p>
+        <h2>5. Cold Email Outreach and Use of Apollo.io</h2>
+        <p>We use Apollo.io to identify and contact professionals in a B2B context. Outreach is limited to what is necessary and relevant. Our legal basis is our legitimate interest in B2B marketing (Art. 6(1)(f) GDPR). You can object at any time by replying or emailing <a href="mailto:info@cybercradle.de">info@cybercradle.de</a>.</p>
+        <h2>6. Hosting and Infrastructure</h2>
+        <p>This website may be hosted by third-party providers that process data on our behalf under a Data Processing Agreement in accordance with Art. 28 GDPR.</p>
+        <h2>7. Your Rights Under GDPR</h2>
+        <p>You have the right to: access your personal data, correct inaccurate data, request deletion (where permitted), restrict or object to processing, and receive your data in a portable format. Contact us at <a href="mailto:info@cybercradle.de">info@cybercradle.de</a> for requests.</p>
+        <h2>8. Right to File a Complaint</h2>
+        <p>If you believe your personal data is being processed unlawfully, you may contact:<br>Berliner Beauftragte für Datenschutz und Informationsfreiheit<br>Alt-Moabit 59–61, 10555 Berlin<br><a href="https://www.datenschutz-berlin.de" target="_blank">www.datenschutz-berlin.de</a></p>
+        <h2>9. Contact Forms</h2>
+        <p>When you submit a form, we collect name, email, phone, and project interests to respond to your inquiry and offer occasional updates (with consent). Legal basis: Art. 6(1)(b), Art. 6(1)(a), and Art. 6(1)(f) GDPR. Withdraw consent anytime via <a href="mailto:info@cybercradle.de">info@cybercradle.de</a>.</p>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- TERMS & CONDITIONS -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-terms" class="page">
+    <div class="sub-hero"><div class="hero-grid-bg"></div><div class="sub-hero-content"><div class="breadcrumb"><a onclick="navigateTo('home')">Home</a><span>/</span><span>Terms & Conditions</span></div><h1>Terms & Conditions</h1></div></div>
+    <div class="legal-content">
+        <h2>1. Scope of Services</h2>
+        <p>CyberCradle provides digital services including AI Agent Development, RAG Development, Fine-Tuning, Gen AI Diagnostic Reviews, AI Strategy Consulting, AI Training & Workshops, and AI Integration & APIs. Each project is customized according to the client's needs. Specific project details, timelines, and deliverables will be agreed upon mutually before commencement.</p>
+        <h2>2. Contract and Acceptance</h2>
+        <p>Offers made through order forms are valid for 4 weeks. If not signed and returned within this period, the offer is deemed void. Upon acceptance, the client is bound by these Terms & Conditions.</p>
+        <h2>3. Payment Terms</h2>
+        <p>Payment shall be made in two installments: 50% upon acceptance and 50% after project completion and delivery. Payments must be made within 14 days of the invoice date. All prices are in Euros (€) and exclude applicable VAT unless specified otherwise.</p>
+        <h2>4. Additional Services and Costs</h2>
+        <p>Changes or additional requirements after signing must be requested in writing. Additional costs will be communicated before implementation. Updated order forms must be signed to confirm acceptance.</p>
+        <h2>5. Client Responsibilities</h2>
+        <p>The client must provide all necessary information and materials promptly. The client is solely responsible for using delivered services at their own risk, including ensuring adequate security measures such as password management, data protection, and regular software updates.</p>
+        <h2>6. Intellectual Property Rights</h2>
+        <p>Upon full payment, the client receives complete ownership and IP rights of the delivered project. CyberCradle reserves the right to showcase completed projects in its portfolio unless confidentiality is requested in writing.</p>
+        <h2>7. Liability and Warranty</h2>
+        <p>CyberCradle strives to ensure service availability but is not liable for interruptions due to factors beyond its control. Upon delivery, the client assumes full responsibility for maintaining and securing the delivered product. CyberCradle's liability is limited to the amount paid by the client.</p>
+        <h2>8. Refund and Cancellation</h2>
+        <p>The initial 50% payment is non-refundable. Once delivered, cancellations are no longer accepted and the remaining 50% is due within 14 days. Until final payment, CyberCradle retains full ownership. Consumers may withdraw within 14 days per § 355 BGB.</p>
+        <h2>9. Governing Law</h2>
+        <p>These Terms are governed by the laws of the Federal Republic of Germany. Disputes shall be subject to the exclusive jurisdiction of the courts in Berlin, Germany.</p>
+        <h2>10. Confidentiality and Data Protection</h2>
+        <p>CyberCradle processes personal data in accordance with GDPR. Both parties agree to keep confidential information private. This obligation remains in effect after contract termination.</p>
+        <h2>11. Amendments</h2>
+        <p>CyberCradle reserves the right to modify these Terms at any time. Continued use of services constitutes acceptance of revised terms.</p>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- FOOTER (shared) -->
+<!-- ════════════════════════════════════════════════ -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <a class="nav-logo" onclick="navigateTo('home')" style="cursor:pointer;"><span class="logo-dot"></span>CyberCradle</a>
+            <p>AI Development & Implementation.<br>Based in Berlin, building globally.</p>
+            <p style="margin-top:0.5rem;">Goltzstraße 63, 13587 Berlin</p>
+            <p><a href="mailto:info@cybercradle.de" style="color:var(--accent);text-decoration:none;">info@cybercradle.de</a></p>
+        </div>
+        <div class="footer-col">
+            <h4>Services</h4>
+            <a onclick="navigateTo('ai-agents')">AI Agents</a>
+            <a onclick="navigateTo('rag-development')">RAG Development</a>
+            <a onclick="navigateTo('fine-tuning')">Fine-Tuning</a>
+            <a onclick="navigateTo('gen-ai-diagnostic')">Gen AI Diagnostic</a>
+        </div>
+        <div class="footer-col">
+            <h4>More Services</h4>
+            <a onclick="navigateTo('ai-strategy')">AI Strategy</a>
+            <a onclick="navigateTo('ai-training')">Training & Workshops</a>
+            <a onclick="navigateTo('ai-integration')">Integration & APIs</a>
+        </div>
+        <div class="footer-col">
+            <h4>Company</h4>
+            <a onclick="navigateTo('about-us')">About Us</a>
+            <a href="http://www.wazeer.app" target="_blank">WAZEER App</a>
+            <a onclick="navigateTo('home','#contact')">Contact</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>&copy; 2025 CyberCradle. All rights reserved.</span>
+        <div class="footer-legal">
+            <a onclick="navigateTo('imprint')">Imprint</a>
+            <a onclick="navigateTo('privacy')">Privacy Policy</a>
+            <a onclick="navigateTo('terms')">Terms & Conditions</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Cursor glow
+const glow=document.getElementById('cursorGlow');
+document.addEventListener('mousemove',e=>{glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';});
+
+// Mobile nav
+const toggle=document.getElementById('menuToggle');
+const links=document.getElementById('navLinks');
+toggle.addEventListener('click',()=>links.classList.toggle('active'));
+
+// ─── ROUTING ───
+function navigateTo(page,hash){
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    // Show target
+    const target=document.getElementById('page-'+page);
+    if(target) target.classList.add('active');
+    // Close mobile menu
+    links.classList.remove('active');
+    // Scroll
+    if(hash){
+        setTimeout(()=>{
+            const el=document.querySelector(hash);
+            if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+        },100);
+    } else {
+        window.scrollTo({top:0,behavior:'instant'});
+    }
+    // Update URL hash
+    history.pushState(null,null,'#/'+page);
+    // Re-observe reveals
+    setTimeout(initReveals,200);
+}
+
+function scrollToEl(sel){
+    const el=document.querySelector(sel);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// Handle browser back/forward
+window.addEventListener('popstate',()=>{
+    const h=location.hash.replace('#/','');
+    if(h){
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+        const t=document.getElementById('page-'+h);
+        if(t) t.classList.add('active');
+        setTimeout(initReveals,200);
+    }
+});
+
+// Load from URL hash
+window.addEventListener('DOMContentLoaded',()=>{
+    const h=location.hash.replace('#/','');
+    if(h && document.getElementById('page-'+h)){
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+        document.getElementById('page-'+h).classList.add('active');
+    }
+    initReveals();
+});
+
+// Scroll reveal
+function initReveals(){
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el=>obs.observe(el));
+}
+</script>
+</body>
+</html>
