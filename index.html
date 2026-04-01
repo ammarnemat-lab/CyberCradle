@@ -133,17 +133,25 @@
         .service-card:hover .service-link{gap:0.8rem;}
         .arrow-svg{width:14px;height:14px;}
 
-        /* ─── SHOWCASE ─── */
+        /* ─── SHOWCASE CAROUSEL ─── */
         #showcase{background:linear-gradient(180deg,var(--black) 0%,rgba(8,143,143,0.02) 50%,var(--black) 100%);}
-        .showcase-container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;}
+        .showcase-carousel{max-width:1100px;margin:0 auto;position:relative;overflow:hidden;}
+        .showcase-track{display:flex;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1);}
+        .showcase-slide{min-width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;}
         .showcase-visual{position:relative;height:400px;border-radius:24px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
         .showcase-visual::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(8,143,143,0.1);filter:blur(60px);animation:float-orb 15s ease-in-out infinite;}
-        .wazeer-logo-text{font-family:'Inter',sans-serif;font-size:3rem;font-weight:800;background:linear-gradient(135deg,var(--accent),#f05a28);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;z-index:2;}
         .showcase-info h3{font-family:'Inter',sans-serif;font-size:2rem;font-weight:700;margin-bottom:1rem;}
         .showcase-info p{color:var(--gray-400);line-height:1.7;margin-bottom:1.5rem;}
         .showcase-features{list-style:none;margin-bottom:2rem;}
         .showcase-features li{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:1rem;color:var(--gray-200);font-size:0.95rem;line-height:1.6;}
         .showcase-features li svg{color:var(--accent);flex-shrink:0;margin-top:3px;}
+        .showcase-nav{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:3rem;}
+        .showcase-dot{width:12px;height:12px;border-radius:50%;background:var(--gray-600);border:none;cursor:pointer;transition:all 0.3s ease;padding:0;}
+        .showcase-dot.active{background:var(--accent);box-shadow:0 0 12px rgba(8,143,143,0.4);transform:scale(1.2);}
+        .showcase-dot:hover{background:var(--accent-dim);}
+        .showcase-arrow{width:40px;height:40px;border-radius:50%;background:var(--glass);border:1px solid var(--glass-border);color:var(--gray-400);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s ease;flex-shrink:0;}
+        .showcase-arrow:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.1);}
+        .showcase-counter{font-size:0.75rem;letter-spacing:0.1em;color:var(--gray-400);font-weight:600;}
 
         /* ─── CONTACT ─── */
         #contact{max-width:800px;margin:0 auto;text-align:center;}
@@ -236,7 +244,7 @@
             .hero{grid-template-columns:1fr;padding:7rem 1.5rem 3rem;} .hero-stats{flex-direction:column;gap:1.5rem;} .hero-visual{display:none;}
             section{padding:4rem 1.5rem;}
             .why-grid,.services-grid{grid-template-columns:1fr;}
-            .showcase-container{grid-template-columns:1fr;} .showcase-visual{height:250px;}
+            .showcase-slide{grid-template-columns:1fr;} .showcase-visual{height:250px;}
             .contact-form{grid-template-columns:1fr;}
             .footer-inner{grid-template-columns:1fr 1fr;gap:2rem;}
             .footer-bottom{flex-direction:column;gap:1rem;text-align:center;}
@@ -267,6 +275,7 @@
                 <a onclick="navigateTo('ai-integration')">AI Integration & APIs</a>
             </div>
         </li>
+        <li><a onclick="navigateTo('home','#showcase')">Our Work</a></li>
         <li><a onclick="navigateTo('about-us')">About Us</a></li>
         <li><a onclick="navigateTo('home','#contact')">Contact</a></li>
     </ul>
@@ -340,15 +349,46 @@
 </section>
 
 <section id="showcase">
-    <div class="showcase-container">
-        <div class="showcase-visual reveal"><img src="WAZEER - Logo - Transparent (3).png" alt="WAZEER" style="max-width:280px;width:100%;border-radius:16px;position:relative;z-index:2;"></div>
-        <div class="showcase-info reveal">
-            <div class="section-label">Our Work</div><h3>WAZEER — AI-Powered Islamic Guidance</h3><p>Our flagship app, built from the ground up. WAZEER brings AI technology to Islamic guidance with two core features:</p>
-            <ul class="showcase-features">
-                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><strong>JIBRIL</strong> — An AI chatbot that serves as your Islamic companion. Share your real-life scenarios and receive thoughtful, authentic guidance.</span></li>
-                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Deenscrolling</strong> — A discovery feed designed to inspire reflection and learning. Every scroll delivers meaningful knowledge from authentic Islamic sources.</span></li>
-            </ul>
-            <a href="http://www.wazeer.app" class="btn-primary" target="_blank">Explore WAZEER <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+    <div class="reveal">
+        <div class="section-label">Our Work</div>
+        <h2 class="section-title">Products we've built</h2>
+        <p class="section-sub">We don't just consult — we ship. Here's what we've created from the ground up.</p>
+    </div>
+    <div class="showcase-carousel reveal">
+        <div class="showcase-track" id="showcaseTrack">
+            <!-- Slide 1: WAZEER -->
+            <div class="showcase-slide">
+                <div class="showcase-visual"><img src="WAZEER - Logo - Transparent (3).png" alt="WAZEER" style="max-width:280px;width:100%;border-radius:16px;position:relative;z-index:2;"></div>
+                <div class="showcase-info">
+                    <h3>WAZEER — AI-Powered Islamic Guidance</h3>
+                    <p>Our flagship app, built from the ground up. WAZEER brings AI technology to Islamic guidance with two core features:</p>
+                    <ul class="showcase-features">
+                        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><strong>JIBRIL</strong> — An AI chatbot that serves as your Islamic companion. Share your real-life scenarios and receive thoughtful, authentic guidance.</span></li>
+                        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Deenscrolling</strong> — A discovery feed designed to inspire reflection and learning. Every scroll delivers meaningful knowledge from authentic Islamic sources.</span></li>
+                    </ul>
+                    <a href="http://www.wazeer.app" class="btn-primary" target="_blank">Explore WAZEER <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+                </div>
+            </div>
+            <!-- Slide 2: FAYOL -->
+            <div class="showcase-slide">
+                <div class="showcase-visual"><img src="Fayol-logo-wordmark-transparent.png" alt="Fayol Solutions" style="max-width:320px;width:100%;position:relative;z-index:2;"></div>
+                <div class="showcase-info">
+                    <h3>Fayol — AI-Powered SAP Project Automation</h3>
+                    <p>Fayol Solutions helps businesses streamline SAP project delivery with intelligent automation, workflow management, and data-driven insights.</p>
+                    <ul class="showcase-features">
+                        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Automate repetitive SAP project tasks and approval workflows.</span></li>
+                        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Improve visibility with real-time insights, reduce delays, and keep teams aligned.</span></li>
+                    </ul>
+                    <a href="https://www.fayolsolutions.com/" class="btn-primary" target="_blank">Explore Fayol <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+                </div>
+            </div>
+        </div>
+        <div class="showcase-nav">
+            <button class="showcase-arrow" onclick="moveShowcase(-1)" aria-label="Previous project"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <button class="showcase-dot active" onclick="goToSlide(0)"></button>
+            <span class="showcase-counter" id="showcaseCounter">01 / 02</span>
+            <button class="showcase-dot" onclick="goToSlide(1)"></button>
+            <button class="showcase-arrow" onclick="moveShowcase(1)" aria-label="Next project"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button>
         </div>
     </div>
 </section>
@@ -615,6 +655,7 @@
             <h4>Company</h4>
             <a onclick="navigateTo('about-us')">About Us</a>
             <a href="http://www.wazeer.app" target="_blank">WAZEER App</a>
+            <a href="https://www.fayolsolutions.com/" target="_blank">Fayol Solutions</a>
             <a onclick="navigateTo('home','#contact')">Contact</a>
         </div>
     </div>
@@ -687,6 +728,23 @@ window.addEventListener('DOMContentLoaded',()=>{
     }
     initReveals();
 });
+
+// ─── SHOWCASE CAROUSEL ───
+let currentSlide=0;
+const totalSlides=2;
+let autoPlayTimer;
+function updateShowcase(){
+    const track=document.getElementById('showcaseTrack');
+    if(track) track.style.transform='translateX(-'+currentSlide*100+'%)';
+    const dots=document.querySelectorAll('.showcase-dot');
+    dots.forEach((d,i)=>{d.classList.toggle('active',i===currentSlide);});
+    const counter=document.getElementById('showcaseCounter');
+    if(counter) counter.textContent=String(currentSlide+1).padStart(2,'0')+' / '+String(totalSlides).padStart(2,'0');
+}
+function goToSlide(i){currentSlide=i;updateShowcase();resetAutoPlay();}
+function moveShowcase(dir){currentSlide=(currentSlide+dir+totalSlides)%totalSlides;updateShowcase();resetAutoPlay();}
+function resetAutoPlay(){clearInterval(autoPlayTimer);autoPlayTimer=setInterval(()=>{currentSlide=(currentSlide+1)%totalSlides;updateShowcase();},6000);}
+resetAutoPlay();
 
 // Scroll reveal
 function initReveals(){
