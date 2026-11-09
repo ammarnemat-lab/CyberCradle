@@ -1,0 +1,23 @@
+# CyberCradle
+
+> CyberCradle is a Berlin-based studio (sole proprietorship of Ammar Nemat, co-founded with Abdul Jalil Khan Rao) that builds AI systems for businesses and makes businesses visible in search engines and AI assistants. It works with clients across Europe.
+
+## Services
+- AI Agents: AI agents that automate tasks and routine decisions inside existing workflows. https://cybercradle.de/#/ai-agents
+- RAG Development: retrieval-augmented generation systems that answer from a company's own documents and data. https://cybercradle.de/#/rag-development
+- Fine-Tuning: adapting pre-trained language models to a company's domain (LoRA, PEFT). https://cybercradle.de/#/fine-tuning
+- AI Integration & APIs: connecting AI models to CRMs, ERPs, databases and SaaS through REST/GraphQL APIs and middleware. https://cybercradle.de/#/ai-integration
+- Generative AI Diagnostic Review: stress-testing Gen AI products for prompt injection, hallucination and failure modes. https://cybercradle.de/#/gen-ai-diagnostic
+- AI Strategy Consulting: finding where AI creates value and building a prioritised roadmap. https://cybercradle.de/#/ai-strategy
+- AI Training & Workshops: hands-on AI training in Berlin, the DACH region and remotely. https://cybercradle.de/#/ai-training
+- SEO: technical audit, on-page optimisation, content and monthly improvement. https://cybercradle.de/#/seo
+- GEO (Generative Engine Optimization): making a business findable and correctly described in ChatGPT, Gemini, Perplexity and Google AI Overviews. https://cybercradle.de/#/geo
+
+## Products built by CyberCradle
+- WAZEER: AI app for Islamic guidance with the JIBRIL chatbot. https://www.wazeer.app
+- Fayol: AI tool that automates SAP project tasks and approval workflows. https://www.fayolsolutions.com/
+
+## Contact
+- Email: info@cybercradle.de
+- Address: Goltzstraße 63, 13587 Berlin, Germany
+- Website: https://cybercradle.de/

@@ -1,0 +1,5 @@
+# CyberCradle: search engines and AI assistants are welcome.
+User-agent: *
+Allow: /
+
+Sitemap: https://cybercradle.de/sitemap.xml
